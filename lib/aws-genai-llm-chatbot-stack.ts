@@ -460,6 +460,7 @@ export class AwsGenAILLMChatbotStack extends cdk.Stack {
     ]);
 
     if (props.config.privateWebsite) {
+      /* HACK: skip ALB and VPC endpoint for static contents
       const paths = [];
       for (
         let index = 0;
@@ -492,6 +493,7 @@ export class AwsGenAILLMChatbotStack extends cdk.Stack {
           },
         ]
       );
+      */ // end HACK
     }
     if (props.config.cognitoFederation?.enabled) {
       NagSuppressions.addResourceSuppressionsByPath(

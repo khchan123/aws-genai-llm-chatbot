@@ -11,7 +11,9 @@ export function getConfig(): SystemConfig {
     /* vpc: {
        vpcId: "vpc-00000000000000000",
        createVpcEndpoints: true,
-       vpcDefaultSecurityGroup: "sg-00000000000"
+       vpcDefaultSecurityGroup: "sg-00000000000",
+       apigwVpcEndpointId: "vpce-00000000000000000",
+       privateSubnetIds: [ "subnet-00000000000000000", "subnet-00000000000000000", "subnet-00000000000000000" ],
     },*/
     privateWebsite: false,
     certificate : "",

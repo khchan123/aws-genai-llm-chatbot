@@ -75,6 +75,8 @@ export interface SystemConfig {
     vpcId?: string;
     createVpcEndpoints?: boolean;
     vpcDefaultSecurityGroup?: string;
+    apigwVpcEndpointId?: string;
+    privateSubnetIds?: string[];
   };
   certificate?: string;
   domain?: string;

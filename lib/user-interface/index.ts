@@ -52,7 +52,7 @@ export class UserInterface extends Construct {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       autoDeleteObjects: true,
-      bucketName: props.config.privateWebsite ? props.config.domain : undefined, 
+      //bucketName: props.config.privateWebsite ? props.config.domain : undefined, 
       websiteIndexDocument: "index.html",
       websiteErrorDocument: "index.html",
       enforceSSL: true,

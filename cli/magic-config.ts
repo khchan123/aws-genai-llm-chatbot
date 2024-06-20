@@ -137,6 +137,8 @@ const embeddingModels = [
       options.prefix = config.prefix;
       options.vpcId = config.vpc?.vpcId;
       options.createVpcEndpoints = config.vpc?.createVpcEndpoints;
+      options.apigwVpcEndpointId = config.vpc?.apigwVpcEndpointId;
+      options.privateSubnetIds = config.vpc?.privateSubnetIds;
       options.privateWebsite = config.privateWebsite;
       options.certificate = config.certificate;
       options.domain = config.domain;
@@ -238,6 +240,22 @@ async function processCreateOptions(options: any): Promise<void> {
       },
     },
     {
+      type: "list",
+      name: "privateSubnetIds",
+      message: "Specify THREE comma-separated existing subnetId (subnet-xxxxxxxxxxxxxxxxx)",
+      initial: options.privateSubnetIds,
+      validate(privateSubnetIds: any) {
+        const subnetIdRegex = RegExp(/^subnet-[0-9a-f]{8,17}$/i)
+        return ((this as any).skipped || 
+            ((privateSubnetIds as any).every((subnetId: string) => subnetIdRegex.test(subnetId)) && privateSubnetIds.length == 3)
+          ) ?
+          true : 'Enter valid comma-separated subnetId in (subnet-xxxxxxxxxxx, subnet-xxxxxxxxxxx, subnet-xxxxxxxxxxx) format'
+      },
+      skip(): boolean {
+        return !(this as any).state.answers.existingVpc;
+      },
+    },
+    {
       type: "confirm",
       name: "createVpcEndpoints",
       message: "Do you want create VPC Endpoints?",
@@ -260,6 +278,7 @@ async function processCreateOptions(options: any): Promise<void> {
         "Do you want to provide a custom domain name and corresponding certificate arn for the public website ?",
       initial: options.customPublicDomain || false,
       skip(): boolean {
+        return true; // HACK: skip ALB for static content
         return (this as any).state.answers.privateWebsite ;
       },
     },
@@ -290,6 +309,7 @@ async function processCreateOptions(options: any): Promise<void> {
       },
       initial: options.certificate,
       skip(): boolean {
+        return true; // HACK: skip ACM for ALB for static content
         return !(this as any).state.answers.privateWebsite && !(this as any).state.answers.customPublicDomain;
       },
     },
@@ -310,6 +330,21 @@ async function processCreateOptions(options: any): Promise<void> {
       initial: options.domain,
       skip(): boolean {
         return !(this as any).state.answers.privateWebsite && !(this as any).state.answers.customPublicDomain;
+      },
+    },
+    {
+      type: "input",
+      name: "apigwVpcEndpointId",
+      message(): string {
+        return "Specify existing API Gateway VPC endpoint ID for execute-api service (vpce-xxxxxxxxxxxxxxxxx)";
+      },
+      validate(vpcId: string) {
+        return ((this as any).skipped || RegExp(/^vpce-[0-9a-f]{8,17}$/i).test(vpcId)) ?
+          true : 'Enter a valid VPC endpoint Id in vpce-xxxxxxxxxxx format'
+      },
+      initial: options.apigwVpcEndpointId,
+      skip(): boolean {
+        return !(this as any).state.answers.privateWebsite && !(this as any).state.answers.existingVpc;
       },
     },
     {
@@ -884,6 +919,8 @@ async function processCreateOptions(options: any): Promise<void> {
       ? {
           vpcId: answers.vpcId.toLowerCase(),
           createVpcEndpoints: answers.createVpcEndpoints,
+          apigwVpcEndpointId: !answers.createVpcEndpoints ? answers.apigwVpcEndpointId : undefined,
+          privateSubnetIds: answers.privateSubnetIds,
       }
       : undefined,
     privateWebsite: answers.privateWebsite,

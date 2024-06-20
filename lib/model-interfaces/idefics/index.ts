@@ -47,15 +47,21 @@ export class IdeficsInterface extends Construct {
         defaultSecurityGroup
     ) : ec2.SecurityGroup.fromLookupByName(this, 'VPCDefaultSecurityGroup', 'default', props.shared.vpc);
 
-    const vpcEndpoint = props.shared.vpc.addInterfaceEndpoint(
-      "PrivateApiEndpoint",
-      {
-        service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
-        privateDnsEnabled: true,
-        open: true,
-        securityGroups: [vpcDefaultSecurityGroup],
-      }
-    );
+      /* HACK: reuse existing api gateway vpc endpoint
+      const vpcEndpoint = props.shared.vpc.addInterfaceEndpoint(
+        "PrivateApiEndpoint",
+        {
+          service: ec2.InterfaceVpcEndpointAwsService.APIGATEWAY,
+          privateDnsEnabled: true,
+          open: true,
+          securityGroups: [vpcDefaultSecurityGroup],
+        }
+      );
+      */
+      const vpcEndpoint = ec2.InterfaceVpcEndpoint.fromInterfaceVpcEndpointAttributes(this, 'PrivateApiEndpoint', {
+        vpcEndpointId: props.config.vpc?.apigwVpcEndpointId ?? '',
+        port: 443,
+      });
 
     const logGroup = new logs.LogGroup(
       this,

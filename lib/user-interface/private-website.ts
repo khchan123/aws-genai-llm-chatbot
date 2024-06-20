@@ -39,6 +39,7 @@ export class PrivateWebsite extends Construct {
     // 2. In Route 53 link the VPC to the Private Hosted Zone (PHZ) (https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zone-private-associate-vpcs.html)
     // 3. In the PHZ, add an "A Record" that points to the Application Load Balancer Alias (https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-elb-load-balancer.html)
 
+    /* HACK: skip ALB to serve S3 static content
     // Retrieving S3 Endpoint Ips for ALB Target
     const vpc = props.shared.vpc
 
@@ -211,6 +212,7 @@ export class PrivateWebsite extends Construct {
             }
         })
     );
+    */ // END HACK
 
     // ###################################################
     // Outputs
@@ -218,7 +220,8 @@ export class PrivateWebsite extends Construct {
     new cdk.CfnOutput(this, "Domain", {
       value: `https://${props.config.domain}`,
     });
-    
+
+    /* HACK: skip ALB to serve static contents
     new cdk.CfnOutput(this, "LoadBalancerDNS", {
       value: loadBalancer.loadBalancerDnsName,
     });
@@ -232,6 +235,7 @@ export class PrivateWebsite extends Construct {
         },
       ]
     );
+    */ // end HACK
     
     NagSuppressions.addResourceSuppressions(
       props.websiteBucket, 
@@ -243,6 +247,7 @@ export class PrivateWebsite extends Construct {
       ]
     );
     
+    /* HACK: skip ALB to serve static contents
     NagSuppressions.addResourceSuppressions(
       albLogBucket, 
       [
@@ -253,7 +258,7 @@ export class PrivateWebsite extends Construct {
       ]
     );
     
-    
+    */ // end HACK
     
   }
 }
