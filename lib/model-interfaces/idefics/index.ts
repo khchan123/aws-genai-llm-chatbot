@@ -185,6 +185,9 @@ export class IdeficsInterface extends Construct {
       "IdeficsInterfaceRequestHandler",
       {
         vpc: props.shared.vpc,
+        vpcSubnets: props.shared.vpc.selectSubnets({
+            subnetFilters: [ ec2.SubnetFilter.byIds(props.config.vpc?.privateSubnetIds ?? [""]) ],
+          }) as ec2.SubnetSelection,
         code: props.shared.sharedCode.bundleWithLambdaAsset(
           path.join(__dirname, "./functions/request-handler")
         ),

@@ -1,5 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaEventSources from "aws-cdk-lib/aws-lambda-event-sources";
@@ -32,6 +33,9 @@ export class LangChainInterface extends Construct {
 
     const requestHandler = new lambda.Function(this, "RequestHandler", {
       vpc: props.shared.vpc,
+      vpcSubnets: props.shared.vpc.selectSubnets({
+          subnetFilters: [ ec2.SubnetFilter.byIds(props.config.vpc?.privateSubnetIds ?? [""]) ],
+        }) as ec2.SubnetSelection,
       code: props.shared.sharedCode.bundleWithLambdaAsset(
         path.join(__dirname, "./functions/request-handler")
       ),

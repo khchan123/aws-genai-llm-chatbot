@@ -195,7 +195,10 @@ export class DataImport extends Construct {
       logRetention: logs.RetentionDays.ONE_WEEK,
       layers: [props.shared.powerToolsLayer, props.shared.commonLayer],
       vpc: props.shared.vpc,
-      vpcSubnets: props.shared.vpc.privateSubnets as ec2.SubnetSelection,
+      //vpcSubnets: props.shared.vpc.privateSubnets as ec2.SubnetSelection,
+      vpcSubnets: props.shared.vpc.selectSubnets({
+          subnetFilters: [ ec2.SubnetFilter.byIds(props.config.vpc?.privateSubnetIds ?? [""]) ],
+        }) as ec2.SubnetSelection,
       environment: {
         ...props.shared.defaultEnvironmentVariables,
         CONFIG_PARAMETER_NAME: props.shared.configParameter.parameterName,

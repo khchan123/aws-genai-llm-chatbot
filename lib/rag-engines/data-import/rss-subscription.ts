@@ -10,6 +10,7 @@ import * as events from "aws-cdk-lib/aws-events";
 import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 
 export interface RssSubscriptionProperties {
   readonly config: SystemConfig;
@@ -113,6 +114,9 @@ export class RssSubscription extends Construct {
       "crawlQueuedRssPostsFunction",
       {
         vpc: props.shared.vpc,
+        vpcSubnets: props.shared.vpc.selectSubnets({
+            subnetFilters: [ ec2.SubnetFilter.byIds(props.config.vpc?.privateSubnetIds ?? [""]) ],
+        }) as ec2.SubnetSelection,
         description:
           "Functions polls the RSS items for pending urls and invokes Website crawler inference. Max of 10 URLs per invoke.",
         code: props.shared.sharedCode.bundleWithLambdaAsset(

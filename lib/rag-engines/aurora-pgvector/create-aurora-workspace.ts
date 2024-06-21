@@ -4,6 +4,7 @@ import { Construct } from "constructs";
 import { SystemConfig } from "../../shared/types";
 import { Shared } from "../../shared";
 import { RagDynamoDBTables } from "../rag-dynamodb-tables";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -29,6 +30,9 @@ export class CreateAuroraWorkspace extends Construct {
       "CreateAuroraWorkspaceFunction",
       {
         vpc: props.shared.vpc,
+        vpcSubnets: props.shared.vpc.selectSubnets({
+            subnetFilters: [ ec2.SubnetFilter.byIds(props.config.vpc?.privateSubnetIds ?? [""]) ],
+          }) as ec2.SubnetSelection,
         code: props.shared.sharedCode.bundleWithLambdaAsset(
           path.join(__dirname, "./functions/create-workflow/create")
         ),
